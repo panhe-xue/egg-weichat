@@ -82,6 +82,10 @@ class UserService extends Service {
     }
   }
   async sendNewFriends(sender, receiver) {
+    const hasRec = await this.app.mysql.get(UserService.TABLE_NAME_NEW_FRIENDS, { sender, receiver });
+    if (hasRec) {
+      return;
+    }
     const row = {
       sender,
       receiver,

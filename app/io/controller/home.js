@@ -13,26 +13,30 @@ class DefaultController extends Controller {
   }
   async login() {
     const { ctx } = this;
-    const { socket, logger, service } = ctx;
+    const { socket, logger, service, app } = ctx;
     const id = socket.id;
     const msg = ctx.args[0];
-    logger.info(id, msg, '=================>');
+    logger.info(id, msg);
+    app.io.of('/').emit('changeSocketId', {
+      uid: msg.uid,
+      socketId: id,
+    });
     await service.user.updateSocketId(msg.uid, id);
   }
   async exchange() {
     const { ctx, app } = this;
+    const { socket, logger } = ctx;
     const nsp = app.io.of('/');
     const message = ctx.args[0] || {};
-    const socket = ctx.socket;
     const client = socket.id;
-
     try {
       const { target, payload } = message;
       if (!target) return;
       const msg = ctx.helper.parseMsg('exchange', payload, { client, target });
+      logger.info('=============================exchange....................', msg);
       nsp.emit(target, msg);
     } catch (error) {
-      app.logger.error(error);
+      logger.error(error);
     }
   }
 
@@ -48,7 +52,41 @@ class DefaultController extends Controller {
       if (!target) return;
 
       // 插入一条数据到 new_friends表
-      await ctx.service.user.sendNewFriends(payload.sender, payload.receiver);
+      const rec = await ctx.service.user.sendNewFriends(payload.sender, payload.receiver);
+      if (!rec) {
+        return;
+      }
+      // 发送client
+      const msg = ctx.helper.parseMsg('addFriend', payload, { client, target });
+      nsp.emit(target, msg);
+    } catch (error) {
+      app.logger.error(error);
+    }
+  }
+  // 同意好友
+  async agreeNewFriend() {
+    const { ctx, app } = this;
+    const nsp = app.io.of('/');
+    const message = ctx.args[0] || {};
+    const socket = ctx.socket;
+    const client = socket.id;
+    console.log('addFriend.......................', message, client);
+    try {
+      const { target, payload } = message;
+      if (!target) return;
+      const uid = ctx.query.uid;
+      ctx.logger.info('add Friend args......', uid);
+      // if (!uid) {
+      //   ret = ctx.RetCode.ERR_CLIENT_PARAMS_ERR;
+      //   msg = ctx.RetMsg.ERR_CLIENT_PARAMS_ERR;
+      //   return;
+      // }
+      await ctx.service.user.addFriend(ctx._res.uid, uid);
+      // 插入一条数据到 new_friends表
+      const rec = await ctx.service.user.sendNewFriends(payload.sender, payload.receiver);
+      if (!rec) {
+        return;
+      }
       // 发送client
       const msg = ctx.helper.parseMsg('addFriend', payload, { client, target });
       nsp.emit(target, msg);
@@ -58,16 +96,19 @@ class DefaultController extends Controller {
   }
 
   // {
-  //   client: '',
-  //   target: '',
-  //   timestamp: '',
+  //   meta: {
+  //     timestamp: 1582103087782,
+  //     client: 'bQoJ35kGgYUs-NZoAAAD',
+  //     target: 'LVG9BquFJiwgMf3xAAAC'
+  //   },
   //   data: {
   //     action: 'exchange',
   //     payload: {
-  //        'uid' : id,
-  //        'nickname' : nickname,
-  //        'avatar' : avatar
-  //     },
+  //       msg: 'nihao',
+  //       uid: 1,
+  //       nickname: '佩询',
+  //       avatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1580378332220&di=4c466a50955148dd597a59a89ea74880&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201809%2F21%2F20180921195352_lmgic.jpg'
+  //     }
   //   }
   // }
 

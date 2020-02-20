@@ -104,6 +104,7 @@ class UserController extends Controller {
     try {
       do {
         const uid = ctx.query.uid;
+        ctx.logger.info('add Friend args......', uid);
         if (!uid) {
           ret = ctx.RetCode.ERR_CLIENT_PARAMS_ERR;
           msg = ctx.RetMsg.ERR_CLIENT_PARAMS_ERR;
