@@ -7,6 +7,11 @@ class UserService extends Service {
     const user = await this.app.mysql.get(UserService.TABLE_NAME, { ac_id });
     return user;
   }
+  async findByUid(id) {
+    this.ctx.logger.info('UserService args:', id);
+    const user = await this.app.mysql.get(UserService.TABLE_NAME, { id });
+    return user;
+  }
   async getRelationship(uid) {
     const sql = `
       select

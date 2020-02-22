@@ -70,25 +70,27 @@ class DefaultController extends Controller {
     const message = ctx.args[0] || {};
     const socket = ctx.socket;
     const client = socket.id;
-    console.log('addFriend.......................', message, client);
+    ctx.logger.info('agreeNewFriend begin', message, client);
     try {
-      const { target, payload } = message;
-      if (!target) return;
-      const uid = ctx.query.uid;
-      ctx.logger.info('add Friend args......', uid);
-      // if (!uid) {
-      //   ret = ctx.RetCode.ERR_CLIENT_PARAMS_ERR;
-      //   msg = ctx.RetMsg.ERR_CLIENT_PARAMS_ERR;
-      //   return;
-      // }
-      await ctx.service.user.addFriend(ctx._res.uid, uid);
-      // 插入一条数据到 new_friends表
-      const rec = await ctx.service.user.sendNewFriends(payload.sender, payload.receiver);
-      if (!rec) {
+      const { requestId, agreeId, nickname, avatar, phone, gender } = message;
+      if (!requestId || !agreeId) return;
+      const requestUser = await ctx.service.user.findByUid(requestId);
+      if (!requestUser) {
+        ctx.logger.error('agreeNewFriend, error:', message, requestId, agreeId);
         return;
       }
+      const target = requestUser.socket_id;
+      const payload = {
+        uid: agreeId,
+        msg: '我们已经是好友了，开始聊天吧。',
+        nickname,
+        avatar,
+        phone,
+        gender,
+      };
+      await ctx.service.user.addFriend(requestId, agreeId);
       // 发送client
-      const msg = ctx.helper.parseMsg('addFriend', payload, { client, target });
+      const msg = ctx.helper.parseMsg('agreeNewFriend', payload, { client, target });
       nsp.emit(target, msg);
     } catch (error) {
       app.logger.error(error);

@@ -20,4 +20,5 @@ module.exports = app => {
   io.of('/').route('login', io.controller.home.login);
   io.of('/').route('exchange', io.controller.home.exchange);
   io.of('/').route('addFriend', io.controller.home.addFriend);
+  io.of('/').route('agreeNewFriend', io.controller.home.agreeNewFriend);
 };
