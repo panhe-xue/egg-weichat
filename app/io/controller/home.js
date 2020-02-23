@@ -16,6 +16,7 @@ class DefaultController extends Controller {
     const { socket, logger, service, app } = ctx;
     const id = socket.id;
     const msg = ctx.args[0];
+    logger.info('socket 登录..................');
     logger.info(id, msg);
     app.io.of('/').emit('changeSocketId', {
       uid: msg.uid,
