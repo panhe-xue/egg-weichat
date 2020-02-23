@@ -5,12 +5,13 @@ module.exports = () => {
   const config = exports = {};
   config.mysql = {
     client: {
-      host: 'rm-wz952vq78mu4360tf.mysql.rds.aliyuncs.com',
-      port: 3306,
-      user: 'cup',
-      password: 'cUp@2019',
-      database: 'cup', // 奈雪茶库正式
+      host: '127.0.0.1',
+      port: '3306',
+      user: 'root',
+      password: '123456',
+      database: 'wechat',
       charset: 'utf8mb4',
+      debug: true,
     },
   };
   config.cluster = {
