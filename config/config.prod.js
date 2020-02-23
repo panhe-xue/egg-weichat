@@ -39,7 +39,7 @@ module.exports = () => {
   };
   config.uploads = {
     uploadAddr: '/var/www/static/uploads/',
-    dataBaseAddr: 'http://47.113.111.181/static/uploads/',
+    dataBaseAddr: 'http://182.61.38.185/static/uploads/',
   };
   config.io = {
     namespace: {
