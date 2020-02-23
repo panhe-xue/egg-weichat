@@ -38,7 +38,7 @@ module.exports = () => {
     // agentidMode:'IP' '可选，如果设置，则在实例ID中添加部分IP信息，用于多个实例 hostname 相同的场景（以容器为主）'
   };
   config.uploads = {
-    uploadAddr: '/var/www/uploads/',
+    uploadAddr: '/var/www/static/uploads/',
     dataBaseAddr: 'http://47.113.111.181/static/uploads/',
   };
   config.io = {
